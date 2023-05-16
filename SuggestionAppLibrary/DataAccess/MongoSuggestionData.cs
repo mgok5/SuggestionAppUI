@@ -147,7 +147,7 @@ public class MongoSuggestionData : ISuggestionData
         catch (Exception ex)
         {
             await session.AbortTransactionAsync(); //normally this ex variable is used to log to see what is the problem
-
+            Console.WriteLine(ex);
             throw;
         }
     }

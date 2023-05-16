@@ -15,9 +15,9 @@ public class MongoStatusData : IStatusData
 
     public async Task<List<StatusModel>> GetAllStatuses()
     {
-        var output = _cache.Get<List<StatusModel>>(CacheName);  // goes to database and finds the statusmodel matches with cacheName
+        List<StatusModel> output = _cache.Get<List<StatusModel>>(CacheName);  // goes to database and finds the statusmodel matches with cacheName
 
-        if (output == null)
+        if (output == null || output.Count == 0)
         {
             var results = await _statuses.FindAsync(_ => true);
             output = results.ToList();
