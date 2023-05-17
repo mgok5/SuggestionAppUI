@@ -1,9 +1,182 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@inject ICategoryData categoryData
+@inject IStatusData statusData
+@inject ISuggestionData suggestionData
+@inject IUserData userData
+@inject NavigationManager navManager
+@inject ProtectedSessionStorage sessionStorage
 
-<h1>Hello, world!</h1>
+<h1>Training Suggestions</h1>
 
-Welcome to your new app.
+<div>
+    <button>Suggest</button>
+</div>
+
+<div>
+    <div>@suggestions?.Count Suggestions</div>
+    <div>
+        <button @onclick="(() => OrderByNew(true))">New</button>
+        <button @onclick="(() => OrderByNew(false))">Popular</button>
+    </div>
+    <div>
+        <input type="text" placeholder="Search" aria-label="Search box" @oninput="((txt) => OnSearchInput((string)txt.Value))"/>
+    </div>
+</div>
 
 
+
+@code {
+
+    private List<SuggestionModel> suggestions;
+    private List<CategoryModel> categories;
+    private List<StatusModel> statuses;
+
+    private string selectedCategory = "All";
+    private string selectedStatus = "All";
+    private string searchText = "";
+    bool isSortedByNew = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        categories = await categoryData.GetAllCategories();
+        statuses = await statusData.GetAllStatuses();
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)   //at first rendering 
+        {
+            await LoadFilterState();  //this will get the information from the session storage from 
+                                      //the users browser. we didnt put this on initialized async because
+                                      //it will be empty at the beginning. it is only available for us
+                                      //after the render
+            await FilterSuggestions();
+            StateHasChanged();   //that means it is going to render again. it says to blazer update the
+                                 //page because the filterstate has changed for the page   
+        }
+    }
+
+    private async Task LoadFilterState()
+    {
+        //it will save to
+        //session storage as name of selectedCategory
+        var stringResults = await sessionStorage.GetAsync<string>(nameof(selectedCategory)); 
+        selectedCategory = stringResults.Success ? stringResults.Value : "All"; 
+
+        // if it finds anything in the sessionstorage it will bring its value, if not then it will bring all..
+
+        stringResults = await sessionStorage.GetAsync<string>(nameof(selectedStatus));
+        selectedStatus = stringResults.Success ? stringResults.Value : "All";
+
+        stringResults = await sessionStorage.GetAsync<string>(nameof(searchText));
+        searchText = stringResults.Success ? stringResults.Value : "";
+
+        var boolResults = await sessionStorage.GetAsync<bool>(nameof(isSortedByNew));
+        isSortedByNew = boolResults.Success ? boolResults.Value : true;
+
+    }
+
+    private async Task SaveFilterState() // stores filterstate data to sessionstorage
+    {
+        await sessionStorage.SetAsync(nameof(selectedCategory), selectedCategory);
+        await sessionStorage.SetAsync(nameof(selectedStatus), selectedStatus);
+        await sessionStorage.SetAsync(nameof(searchText), searchText);
+        await sessionStorage.SetAsync(nameof(isSortedByNew), isSortedByNew);
+    }
+
+    private async Task FilterSuggestions()
+    {
+        var output = await suggestionData.GetAllApprovedSuggestions(); //brings all approved suggestions from db
+
+        if (selectedCategory != "All") // if session storage is not empty use the info in the storage and bring
+        {
+            output = output.Where(s => s.Category?.CategoryName == selectedCategory).ToList();
+            // it says we are gonna filter on category name,
+            // if it has a category, equals to selected category 
+
+        }
+
+        if (selectedStatus != "All")
+        {
+            output = output.Where(s => s.SuggestionStatus?.StatusName == selectedStatus).ToList();
+        }
+
+        if (string.IsNullOrWhiteSpace(searchText) == false)  //this is basic searchtext check method
+        {// checks whether the searchtext is the same with suggestion or description without comparing case
+
+            output = output.Where(s => s.Suggestion.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) || s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList(); 
+
+        }
+
+        if (isSortedByNew)  //basic sort check method
+        {//if it is true
+            output = output.OrderByDescending(s => s.DateCreated).ToList();
+        }
+        else//if it is false it will bring popular one
+        {   //if it finds more then one which has the same vote count sorts it by datecreated
+            output = output.OrderByDescending(s => s.UserVotes.Count) 
+                            .ThenByDescending(s => s.DateCreated).ToList();
+        }
+
+        suggestions = output;
+
+        SaveFilterState();
+
+    }
+
+    private async Task OrderByNew(bool isNew) //newest suggestion toggle
+    {
+        isSortedByNew = isNew;
+        await FilterSuggestions();
+    }
+
+    private async Task OnSearchInput(string searchInput)
+    {
+        searchText = searchInput;
+        await FilterSuggestions();
+    }
+
+    private async Task OnCategoryClick(string category = "All")
+    {
+        selectedCategory = category;
+        await FilterSuggestions();
+    }
+
+    private async Task OnStatusClick(string status = "All")
+    {
+        selectedStatus = status;
+        await FilterSuggestions();
+    }
+
+    private string GetUpvoteTopText(SuggestionModel suggestion)
+    {
+        if (suggestion.UserVotes?.Count > 0)
+        {
+            return suggestion.UserVotes.Count.ToString("00"); //if there is upvote
+        }
+        else
+        {
+            return "Click To"; //if there is no upvote
+        }
+    }
+
+    private string GetUpvoteBottomText(SuggestionModel suggestion)
+    {
+        if (suggestion.UserVotes?.Count > 1)
+        {
+            return "Upvotes";  //if there is upvote
+        }
+        else
+        {
+            return "Upvote";  //if there is no upvote
+        }
+    }
+
+    private void OpenDetails(SuggestionModel suggestion)
+    {
+        navManager.NavigateTo($"/Details/{suggestion.Id}");
+    }
+
+
+}

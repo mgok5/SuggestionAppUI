@@ -16,15 +16,16 @@ public class MongoSuggestionData : ISuggestionData
         _db = db;
         _userData = userData;
         _cache = cache;
+        _suggestions = db.SuggestionCollection; //never forget to inject injections
     }
 
     public async Task<List<SuggestionModel>> GetAllSuggestions()
     {
         var output = _cache.Get<List<SuggestionModel>>(CacheName);
 
-        if (output is null)
+        if (output is null || output.Count == 0)
         {
-            var results = await _suggestions.FindAsync(s => s.Archived == false);
+            var results = await _suggestions.FindAsync(s => !s.Archived );
 
             output = results.ToList();
 
@@ -39,6 +40,7 @@ public class MongoSuggestionData : ISuggestionData
     public async Task<List<SuggestionModel>> GetAllApprovedSuggestions()  // we use Task<List<SuggestionModel>> because we want all suggestions
     {
         var output = await GetAllSuggestions();
+
 
         return output.Where(x => x.ApprovedForRelease).ToList();
     }
