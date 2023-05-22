@@ -15,6 +15,7 @@
 
 @if (submissions is not null)
 {
+    //useful open and close edit form
     foreach (var s in submissions)
     {
         <div>
@@ -24,12 +25,48 @@
             </div>
             <div>
                 <!--here we check whether we editing item or not..-->
-                @if (currentEditingTitle == s.Id)
+                @if (currentEditingTitle == s.Id) //s.Id == currentEditingTitle because of EditTitle method downbelow
                 {
-                    <!--here it saves id with SaveTitle method and dont let it be changed-->
+                    <!--here it saves id with SaveTitle method and becuase it is changed it wont be the same again with the previous-->
                     <EditForm Model="@editedTitle" OnSubmit="(() => SaveTitle(s))"> 
-
+                        <InputText @bind-Value= "editedTitle"/>
+                        <button type="submit">
+                            <span class="oi oi-check"></span>
+                        </button>
+                        <button @onclick= "(() => currentEditingTitle = string.Empty)">
+                            <span class="oi oi-x"></span>
+                        </button>
                     </EditForm>
+                }
+                else
+                {
+                    @s.Suggestion
+                    <span class="oi oi-pencil" @onclick= "(() => EditTitle(s))"></span>
+                }
+            </div>
+            <div>
+                @s.Category.CategoryName
+            </div>
+            <div>
+                @s.Author.DisplayName
+            </div>
+            <div>
+                @if (currentEditingDescription == s.Id)
+                {
+                    <EditForm Model="@editedDescription" OnSubmit="(() => SaveDescription(s))">
+                        <InputText @bind-Value= "editedDescription"/>
+                        <button type="submit">
+                            <span class="oi oi-check"></span>
+                        </button>
+                        <button @onclick= "(() => currentEditingDescription = string.Empty)">
+                            <span class="oi oi-x"></span>
+                        </button>
+                    </EditForm>
+                }
+                else
+                {
+                    @s.Description
+                    <span class="oi oi-pencil" @onclick= "(() => EditDescription(s))"></span>
                 }
             </div>
         </div>
@@ -76,6 +113,21 @@
     {
         currentEditingTitle = string.Empty;
         model.Suggestion = editedTitle;
+        await suggestionData.UpdateSuggestions(model);
+    }
+
+    private void EditDescription(SuggestionModel model)
+    {
+        editingModel = model;
+        editedDescription = model.Description;
+        currentEditingTitle = "";
+        currentEditingDescription = model.Id;
+    }
+
+    private async Task SaveDescription(SuggestionModel model)
+    {
+        currentEditingDescription = string.Empty;
+        model.Description = editedDescription;
         await suggestionData.UpdateSuggestions(model);
     }
 
