@@ -16,7 +16,7 @@ public class MongoSuggestionData : ISuggestionData
         _db = db;
         _userData = userData;
         _cache = cache;
-        _suggestions = db.SuggestionCollection; //never forget to inject injections
+        _suggestions = db.SuggestionCollection; //never forget to define injections
     }
 
     public async Task<List<SuggestionModel>> GetAllSuggestions()
@@ -33,6 +33,22 @@ public class MongoSuggestionData : ISuggestionData
                                                                     // updated because it is most important collection which is in use
                                                                     // for all other collections
         }
+
+        return output;
+    }
+
+    public async Task<List<SuggestionModel>> GetUsersSuggestions(string userId)  //this added later and if you add new method dont forget to inject it with "ctrl + ." command.
+    {
+        var output = _cache.Get<List<SuggestionModel>>(userId);
+
+        if (output is null || output.Count == 0)
+        {
+            var results = await _suggestions.FindAsync(s => s.Author.Id == userId);
+            output = results.ToList();
+
+            _cache.Set(userId, output, TimeSpan.FromMinutes(1));
+        }
+
 
         return output;
     }
@@ -90,7 +106,7 @@ public class MongoSuggestionData : ISuggestionData
                 suggestion.UserVotes.Remove(userId);
             }
 
-            await suggestionInTransaction.ReplaceOneAsync(s => s.Id == suggestionId, suggestion); // here updates suggetion with upvoted version
+            await suggestionInTransaction.ReplaceOneAsync(s => s.Id == suggestionId, suggestion); // here updates suggestion with upvoted version
                                                                                                   // or downvoted version
 
             var usersInTransaction = db.GetCollection<UserModel>(_db.UserCollectionName);

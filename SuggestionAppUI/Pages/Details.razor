@@ -1,0 +1,102 @@
+﻿@page "/Details/{Id}"
+@inject ISuggestionData suggestionData
+@inject NavigationManager navManager
+
+
+<h1>Suggestion Detail</h1>
+
+<div>
+    <div>
+        @if (suggestion is not null)
+        {
+            <div>
+                <div>
+                    <div>
+                        <div>@GetUpvoteTopText()</div>
+                        <span class="oi oi-caret-top"></span>
+                        <div>@GetUpvoteBottomText()</div>
+                    </div>
+                    <div>
+                        <div>@suggestion.DateCreated.ToString("MM.dd.yyyy")</div>
+                    </div>
+                </div>
+                <div>
+                    <div>@suggestion.Suggestion</div>
+                    <div>@suggestion.Author.DisplayName</div>
+                    <div>@suggestion.Description</div>
+                    <div>@suggestion.Category.CategoryName</div>
+                </div>
+                <div>
+                    <button @onclick="ClosePage"></button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!--if there is a suggestion and if it is not null-->
+@if (suggestion?.SuggestionStatus is not null)
+{
+    <div>
+        <div>
+            <div></div> <!--here is our color section related to our status-->
+            <div>
+                <div>
+                    @suggestion.SuggestionStatus.StatusName
+                </div>
+                <div>
+                    <!--MarkupString allows us this data to be treated not as a text but as html-->
+                    @((MarkupString)suggestion.OwnerNotes)
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private SuggestionModel suggestion;
+
+    protected async override Task OnInitializedAsync()
+    {
+        suggestion = await suggestionData.GetSuggestion(Id);
+    }
+
+    private void ClosePage() // it returns to the main page when it is clicked
+    {
+        navManager.NavigateTo("/");
+    }
+
+    private string GetUpvoteTopText()// we dont use "SuggestionModel suggestion" because we already know what
+                                     //suggestion is
+    {
+        if (suggestion.UserVotes?.Count > 0)
+        {
+            return suggestion.UserVotes.Count.ToString("00"); //if there is upvote
+        }
+        else
+        {
+            return "Click To"; //if there is no upvote
+        }
+    }
+
+    private string GetUpvoteBottomText() // we dont use "SuggestionModel suggestion" because we already know what
+                                         //suggestion is
+    {
+        if (suggestion.UserVotes?.Count > 1)
+        {
+            return "Upvotes";  //if there is upvote
+        }
+        else
+        {
+            return "Upvote";  //if there is no upvote
+        }
+    }
+
+}
