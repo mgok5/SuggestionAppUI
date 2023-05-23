@@ -1,6 +1,8 @@
 ﻿@page "/Details/{Id}"
 @inject ISuggestionData suggestionData
 @inject NavigationManager navManager
+@inject AuthenticationStateProvider authProvider
+@inject IUserData userData
 
 
 <h1>Suggestion Detail</h1>
@@ -11,7 +13,7 @@
         {
             <div>
                 <div>
-                    <div>
+                    <div @onclick = "VoteUp">
                         <div>@GetUpvoteTopText()</div>
                         <span class="oi oi-caret-top"></span>
                         <div>@GetUpvoteBottomText()</div>
@@ -61,11 +63,13 @@
     [Parameter]
     public string Id { get; set; }
 
+    private UserModel loggedInUser;
     private SuggestionModel suggestion;
 
     protected async override Task OnInitializedAsync()
     {
         suggestion = await suggestionData.GetSuggestion(Id);
+        loggedInUser = await authProvider.GetUserFromAuth(userData);
     }
 
     private void ClosePage() // it returns to the main page when it is clicked
@@ -82,7 +86,14 @@
         }
         else
         {
-            return "Click To"; //if there is no upvote
+            if (suggestion.Author.Id == loggedInUser.Id)
+            {
+                return "Awaiting";//if you are the one who created suggestion
+            }
+            else
+            {
+                return "Click To";//if there is no upvote
+            }
         }
     }
 
@@ -96,6 +107,31 @@
         else
         {
             return "Upvote";  //if there is no upvote
+        }
+    }
+
+    private async Task VoteUp()
+    {
+        if (loggedInUser is not null)
+        {
+            if (loggedInUser.Id == suggestion.Author.Id)
+            {
+                //Can't vote on your own suggestion
+                return;
+            }
+            if (suggestion.UserVotes.Add(loggedInUser.Id) == false)
+            {
+                suggestion.UserVotes.Remove(loggedInUser.Id);
+            }
+
+            //here we do update at db above code is for user to be able to see it immidiately
+            await suggestionData.UpvoteSuggetion(suggestion.Id, loggedInUser.Id);
+
+
+        }
+        else
+        {
+            navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
         }
     }
 

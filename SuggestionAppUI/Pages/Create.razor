@@ -1,5 +1,7 @@
 ﻿@page "/Create"
+@attribute [Authorize] 
 @using SuggestionAppUI.Components
+@inject AuthenticationStateProvider authProvider
 @inject ICategoryData categoryData
 @inject ISuggestionData suggestionData
 @inject IUserData userData
@@ -67,9 +69,7 @@
     protected async override Task OnInitializedAsync()
     {
         categories = await categoryData.GetAllCategories();
-
-        //TODO - Replace with user lookup
-        loggedInUser = await userData.GetUserFromAuthentication("abc-345");
+        loggedInUser = await authProvider.GetUserFromAuth(userData);
 
     }
 

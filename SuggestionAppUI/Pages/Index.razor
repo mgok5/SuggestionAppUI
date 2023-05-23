@@ -2,6 +2,7 @@
 
 @inject ICategoryData categoryData
 @inject IStatusData statusData
+@inject AuthenticationStateProvider authProvider
 @inject ISuggestionData suggestionData
 @inject IUserData userData
 @inject NavigationManager navManager
@@ -83,7 +84,7 @@
 
 
 @code {
-
+    private UserModel loggedInUser;
     private List<SuggestionModel> suggestions;
     private List<CategoryModel> categories;
     private List<StatusModel> statuses;
@@ -97,6 +98,65 @@
     {
         categories = await categoryData.GetAllCategories();
         statuses = await statusData.GetAllStatuses();
+        await LoadAndVerifyUser();
+    }
+
+    private async Task LoadAndVerifyUser()
+    {
+        var authState = await authProvider.GetAuthenticationStateAsync();
+        string objectId = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier"))?.Value;
+
+        if (string.IsNullOrWhiteSpace(objectId) == false)
+        {//if there is an objectid it turns falls
+         //with this we'll create a user in our database
+            loggedInUser = await userData.GetUserFromAuthentication(objectId) ?? new();
+
+            //here we get user info from azure b2c
+            string firstName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("givenname"))?.Value;
+            string lastName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("surname"))?.Value;
+            string displayName = authState.User.Claims.FirstOrDefault(c => c.Type.Equals("name"))?.Value;
+            string email = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("email"))?.Value;
+
+            bool isDirty = false;
+
+            if (objectId.Equals(loggedInUser.ObjectIdentifier) == false)
+            {//if it is false that means this user is not in db so define the variable
+                isDirty = true;
+                loggedInUser.ObjectIdentifier = objectId;
+            }
+            if (firstName.Equals(loggedInUser.FirstName) == false)
+            {
+                isDirty = true;
+                loggedInUser.FirstName = firstName;
+            }
+            if (lastName.Equals(loggedInUser.LastName) == false)
+            {
+                isDirty = true;
+                loggedInUser.LastName = lastName;
+            }
+            if (displayName.Equals(loggedInUser.DisplayName) == false)
+            {
+                isDirty = true;
+                loggedInUser.DisplayName = displayName;
+            }
+            if (email.Equals(loggedInUser.EmailAddress) == false)
+            {
+                isDirty = true;
+                loggedInUser.EmailAddress = email;
+            }
+            if (isDirty)
+            {
+                if (string.IsNullOrWhiteSpace(loggedInUser.Id))
+                {//if it is true that means there is no user in db having this id. Then create
+                    await userData.CreateUser(loggedInUser);
+                }
+                else
+                {//if there is then update it
+                    await userData.UpdateUser(loggedInUser);
+                }
+            }
+
+        }
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -177,7 +237,7 @@
 
         suggestions = output;
 
-        SaveFilterState();
+        await SaveFilterState();
 
     }
 
@@ -205,6 +265,37 @@
         await FilterSuggestions();
     }
 
+    private async Task VoteUp(SuggestionModel suggestion)
+    {
+        if (loggedInUser is not null)
+        {
+            if (loggedInUser.Id == suggestion.Author.Id)
+            {
+                //Can't vote on your own suggestion
+                return;
+            }
+            if (suggestion.UserVotes.Add(loggedInUser.Id) == false)
+            {
+                suggestion.UserVotes.Remove(loggedInUser.Id);
+            }
+
+            //here we do update at db above code is for user to be able to see it immidiately
+            await suggestionData.UpvoteSuggetion(suggestion.Id, loggedInUser.Id);
+
+            if (isSortedByNew == false)
+            {
+                suggestions = suggestions
+                            .OrderByDescending(s => s.UserVotes.Count)
+                            .ThenByDescending(s => s.DateCreated).ToList();
+            }
+
+        }
+        else
+        {
+            navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
+        }
+    }
+
     private string GetUpvoteTopText(SuggestionModel suggestion)
     {
         if (suggestion.UserVotes?.Count > 0)
@@ -213,7 +304,14 @@
         }
         else
         {
-            return "Click To"; //if there is no upvote
+            if (suggestion.Author.Id == loggedInUser.Id)
+            {
+                return "Awaiting";//if you are the one who created suggestion
+            }
+            else
+            {
+                return "Click To";//if there is no upvote 
+            } 
         }
     }
 

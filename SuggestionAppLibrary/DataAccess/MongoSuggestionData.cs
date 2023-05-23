@@ -106,11 +106,11 @@ public class MongoSuggestionData : ISuggestionData
                 suggestion.UserVotes.Remove(userId);
             }
 
-            await suggestionInTransaction.ReplaceOneAsync(s => s.Id == suggestionId, suggestion); // here updates suggestion with upvoted version
+            await suggestionInTransaction.ReplaceOneAsync(session,s => s.Id == suggestionId, suggestion); // here updates suggestion with upvoted version
                                                                                                   // or downvoted version
 
             var usersInTransaction = db.GetCollection<UserModel>(_db.UserCollectionName);
-            var user = await _userData.GetUser(suggestion.Author.Id);
+            var user = await _userData.GetUser(userId);
 
             if (isUpvote) // if it is true it will add a voted suggestion model
             {
@@ -122,7 +122,7 @@ public class MongoSuggestionData : ISuggestionData
                 user.VotedOnSuggestions.Remove(suggestionToRemove);
             }
 
-            await usersInTransaction.ReplaceOneAsync(u => u.Id == userId, user);
+            await usersInTransaction.ReplaceOneAsync(session,u => u.Id == userId, user);
 
             await session.CommitTransactionAsync();
 

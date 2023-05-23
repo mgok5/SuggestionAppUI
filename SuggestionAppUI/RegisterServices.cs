@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 
 namespace SuggestionAppUI;
 
@@ -8,8 +9,9 @@ public static class RegisterServices
     public static void ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddRazorPages();
-        builder.Services.AddServerSideBlazor();
+        builder.Services.AddServerSideBlazor().AddMicrosoftIdentityConsentHandler();
         builder.Services.AddMemoryCache(); // they also rely on the cache so we need this injection as well
+        builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
 
 
