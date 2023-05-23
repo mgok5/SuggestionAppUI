@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Rewrite;
 using SuggestionAppUI;
 
 
@@ -24,6 +25,20 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//here added later
+app.UseAuthentication();
+app.UseAuthorization();
+
+//here we modify our signout page if user sign out it redirect user to main page.
+app.UseRewriter(new RewriteOptions().Add(
+    context =>
+    {
+        if (context.HttpContext.Request.Path == "/MicrosoftIdentity/Account/SignedOut")
+        {
+            context.HttpContext.Response.Redirect("/");
+        }
+    }));
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

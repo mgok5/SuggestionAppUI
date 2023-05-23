@@ -1,4 +1,7 @@
-﻿namespace SuggestionAppUI;
+﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
+
+namespace SuggestionAppUI;
 
 public static class RegisterServices
 {
@@ -7,6 +10,25 @@ public static class RegisterServices
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
         builder.Services.AddMemoryCache(); // they also rely on the cache so we need this injection as well
+
+
+
+        //here we say we are using authentication system, use identity webapp authentication system and we passing builder.conf.getsec... in
+        //and it is for authentication
+        builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAdB2C"));
+
+
+
+        // we do authorization here with this code. if B2C send info of jobtitle as admin then we'll give to the person admin authorization
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+            {
+                policy.RequireClaim("jobTitle", "Admin");
+            });
+        });
+
+
 
         builder.Services.AddSingleton<IDbConnection, DbConnection>();  // all below rely on IDbConnection 
         builder.Services.AddSingleton<ICategoryData, MongoCategoryData>();
