@@ -86,7 +86,7 @@
         }
         else
         {
-            if (suggestion.Author.Id == loggedInUser.Id)
+            if (suggestion.Author.Id == loggedInUser?.Id)
             {
                 return "Awaiting";//if you are the one who created suggestion
             }
