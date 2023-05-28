@@ -104,7 +104,7 @@ else
                 Category = categories[4],
                 Suggestion = "Our Fifth Suggestion",
                 Description = "This is a suggestion created by the sample data generation method.",
-                SuggestionStatus = statuses[2],
+                SuggestionStatus = statuses[3],
                 UserVotes = votes,
                 OwnerNotes = "This is the note for the status."
             };
@@ -190,6 +190,14 @@ else
                 StatusDescription = "The suggestion was not something that we are going to undertake."
             };
         await statusData.CreateStatuses(stat);
+
+        stat = new()
+            {
+                StatusName = "Upcoming",
+                StatusDescription = "Great suggestion! We have a resource in the pipeline to address this topic"
+            };
+        await statusData.CreateStatuses(stat);
+
 
         statusesCreated = true;
 

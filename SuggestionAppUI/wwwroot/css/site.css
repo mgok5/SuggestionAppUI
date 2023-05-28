@@ -28,7 +28,13 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+a:hover, .btn-link:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
 }
 
 .btn-primary {
@@ -294,3 +300,354 @@ a, .btn-link {
     font-size: 0.8rem;
     letter-spacing: 1.2px;
 }
+
+.nav-links {
+    display: flex;
+    text-align: center;
+    justify-content: flex-end;
+}
+
+.login-link {
+    padding-left: 1rem;
+}
+
+.form-layout {
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    padding: 2rem;
+}
+
+.form-layout a {
+    font-weight: 700;
+    color: #39BAD8;
+}
+
+    .form-layout a:hover{
+        font-weight: 700;
+        color:#39BAD8;
+        text-decoration: underline;
+    }
+
+.close-button-section {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.input-section {
+    margin-bottom: 2rem;
+}
+
+.input-description {
+    margin-bottom: 0.5rem;
+}
+
+.radio-item-group input[type="radio"] { /*this hides the circles before radio button and its place as well*/
+    display: none;
+}
+
+.radio-item-group label {
+    border-color: #39BAD8;
+    border-width: 1px;
+    padding: 0.3rem 1.5rem;
+    border-radius: 10px;
+    width: 100%;
+    border-style: solid;
+}
+
+.radio-item-group input[type="radio"]:checked + label {
+    background-color: #39BAD8;
+    color: #FFFFFF;
+    width: 100%;
+    border: 1px #39BAD8 solid;
+}
+
+.radio-item-group {
+    margin: 0.5rem;
+}
+
+.center-children {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-main {
+    color: #FFFFFF;
+    background-color: #39BAD8;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    border-radius: 10px;
+    border-width: 3px;
+}
+
+.btn-main:hover {
+    color: #39BAD8;
+    border-color: #39BAD8;
+    background-color: #FFFFFF;
+    border-width: 3px;
+}
+
+.suggestion-detail-row {
+    --bs-gutter-x: 0;
+}
+
+.suggestion-detail {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    padding: 0;
+}
+
+.suggestion-detail-no-votes,
+.suggestion-detail-not-voted,
+.suggestion-detail-voted {
+    border: 3px solid #39BAD8;
+    text-align: center;
+    line-height: 1rem;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.suggestion-detail-no-votes {
+    background-color: #DDDDDD;
+    color: #FFFFFF;
+    border-color: #DDDDDD;
+}
+
+.suggestion-detail-voted {
+    background-color: #39BAD8;
+    color: #FFFFFF;
+}
+
+.suggestion-detail-voted {
+    background-color: #FFFFFF;
+    color: #39BAD8;
+}
+
+.detail-upvote {
+    font-size: 2.7rem;
+}
+
+.entry-upvote {
+    font-size: 3rem;
+}
+
+.suggestion-detail-date {
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.suggestion-detail-text {
+    display: flex;
+    flex-direction: column;
+    padding-left: 27px;
+    padding-right: 10px;
+    padding-top: 0;
+    padding-bottom: 10px;
+}
+
+.suggestion-detail-suggestion {
+    font-size: 1.25rem;
+}
+
+.suggestion-detail-author {
+    color: #A9A9A9;
+}
+
+.suggestion-results {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.suggestion-detail-status-completed {
+    background-color: #B5D43A;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestion-detail-status-watching {
+    background-color: #E9354C;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestion-detail-status-upcoming {
+    background-color: #835581;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestion-detail-status-dismissed {
+    background-color: #F9C30B;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestion-detail-status-none {
+    background-color: #FFFFFF;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestion-detail-status-section {
+    padding: 1.5rem;
+}
+
+.suggestion-detail-status {
+    flex-grow: 1;
+}
+
+.suggestion-detail-owner-notes {
+    padding-bottom: 20px;
+}
+
+.submission {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-approve,
+.btn-reject {
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 10px;
+    border-width: 3px;
+}
+
+.btn-approve {
+    color: #FFFFFF;
+    background-color: #B5D43A;
+    border-color: #FFFFFF;
+}
+
+    .btn-approve:hover {
+        color: #B5D43A;
+        border-color: #B5D43A;
+        background-color: #FFFFFF;
+    }
+
+.btn-reject {
+    color: #FFFFFF;
+    background-color: #E9354C;
+    border-color: #FFFFFF;
+}
+
+    .btn-reject:hover {
+        color: #E9354C;
+        border-color: #E9354C;
+        background-color: #FFFFFF;
+    }
+
+.approval-edit-form {
+    display: flex;
+}
+
+.approval-edit-field {
+    flex: 1;
+    border-radius: 10px;
+}
+
+.submission-edit-approve {
+    color: #B5D43A;
+}
+
+    .submission-edit-approve:hover {
+        font-weight: 700;
+    }
+
+.submission-edit-reject {
+    color: #E9354C;
+}
+
+    .submission-edit-reject:hover {
+        font-weight: 700;
+    }
+
+.submission-edit-icon {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+    .submissionn-edit-icon:hover {
+        color: #39BAD8; 
+    }
+
+.admin {
+    color: #FFFFFF;
+}
+
+.my-submission-heading {
+    color: #000000;
+    text-transform: uppercase;
+}
+
+.my-submission-text { 
+    margin-bottom: 0;
+    padding-left: 1rem;
+}
+
+.my-submission-separator {
+    color: #A9A9A9;
+    height: 2px;
+    opacity: 1;
+}
+
+.suggestion-entry-bottom {
+    display: flex;
+}
+
+.btn-archive {
+    border: 0;
+    background-color: #FFFFFF;
+    padding: 0 10px;
+    flex: unset;
+}
+
+.btn-archive-confirm,
+.btn-archive-cancel {
+    text-transform: uppercase;
+    color: darkgray;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex: 1;
+}
+
+.btn-archive-confirm {
+    color: #E9354C;
+}
+
+.admin-details {
+    margin-top: 20px;
+}
+
+.admin-set-statuses {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.btn-status-completed:hover {
+    color: #B5D43A;
+}
+
+.btn-status-watching:hover {
+    color: #E9354C;
+}
+
+.btn-status-upcoming:hover {
+    color: #835581;
+}
+
+.btn-status-dismissed:hover {
+    color: #F9C30B;
+}
+
+ 
