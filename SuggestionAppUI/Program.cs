@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Rewrite;
 using SuggestionAppUI;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 
 var builder = WebApplication.CreateBuilder(args);

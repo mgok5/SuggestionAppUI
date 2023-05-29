@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
+
 namespace SuggestionAppLibrary.DataAccess;
 public class DbConnection : IDbConnection
 {
