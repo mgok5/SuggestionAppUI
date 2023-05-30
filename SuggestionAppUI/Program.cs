@@ -5,9 +5,12 @@ using SuggestionAppUI;
 
 
 
-var builder = WebApplication.CreateBuilder(args);
+//var builder = WebApplication.CreateBuilder(args);
 
-
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    EnvironmentName = Environments.Staging
+});
 
 builder.ConfigureServices();
 
